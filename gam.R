@@ -3,11 +3,10 @@
 # taylor
 
 
-# load data
+# load data and libraries
 library(readr)
 Project_Data <- read_csv("~/School/Applied Statistical Models/Project Data.csv")
 projectdata <- Project_Data
-
 library(gam)
 library(rgr)
 library(dplyr)
@@ -19,6 +18,7 @@ colnames(projectdata) <- c("MY", "CoD", "Age", "Sex", "SexRatio", "Religion", "D
 attach(projectdata)
 projectdata$Sex[which(projectdata$Sex == "M")] <- 1 
 projectdata$Sex[which(projectdata$Sex == "F")] <- 0
+projectdata$Sex <- as.factor(projectdata$Sex)
 
 # %>% is the pipe function; tell it to only give you things that are not NA values for that vector in the data frame. 
 # need to load "dplyr" function
@@ -36,4 +36,6 @@ train.set <- sample(1:nrow(projectdata), 0.9*nrow(projectdata), replace = FALSE)
 train <- projectdata[train.set,]
 test <- projectdata[-train.set,]
 
-gam(Sex ~., family = "binomial", data = train)
+gam(Sex ~ Age + Region + SexRatio, family = binomial, data = train)
+
+
