@@ -3,13 +3,14 @@ library(openxlsx)
 df = read.xlsx('Project Data.xlsx', sheet=1)
 
 #drop variables consisting of character sets and variables not useful for model
-drops <- c("Cause.of.Death","Date.of.Death","Year","monthYear","Surname",
+drops <- c("Cause.of.Death","Date.of.Death","Year","Surname",
            "Given.Names","Notes","Place.of.Birth","Place.of.Death","Place.of.Internment")
 df = df[ , !(names(df) %in% drops)]
 
+
 #convert to factors the variables that are categorical in nature
-df[c('Sex','Abbrev..Cause.of.Death','Religion','District','Region')] <-
-  list(as.factor(df$Sex),as.factor(df$Abbrev..Cause.of.Death),
+df[c('Sex','monthYear','Abbrev..Cause.of.Death','Religion','District','Region')] <-
+  list(as.factor(df$Sex),as.factor(df$monthYear),as.factor(df$Abbrev..Cause.of.Death),
        as.factor(df$Religion),as.factor(df$District),as.factor(df$Region))
 
 set.seed(1)
@@ -27,5 +28,6 @@ yhat.rf=predict(deaths.rf,newdata=test)
 table(observed = test$Sex, predicted = yhat.rf)
 importance(deaths.rf)
 
+(388+536)/(388+536+319+475)
 
 
