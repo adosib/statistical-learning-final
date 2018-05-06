@@ -43,15 +43,15 @@ death.test <- test$CoD
 
 # run first model to see significant variables
 gam1 <- gam(CoD ~ ., data = train)
+summary(gam1)
 pred1 <- predict(gam1, newdata = test, type = "link")
 pred1 <- round(pred1)
-table(pred1, death.test)
-summary(gam1)
+sum(pred1 == death.test) / length(pred1)
 
 
 # second model using those significant variables
 gam2 <- gam(CoD ~ MY + SexRatio + District + Age, data = train)
 summary(gam2)
-plot.Gam(gam2, se = TRUE, col = "red")
-
-
+pred2 <- predict(gam2, newdata = test, type = "link")
+pred2 <- round(pred2)
+sum(pred2 == death.test) / length(pred2)
