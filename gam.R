@@ -30,7 +30,7 @@ projectdata <- projectdata %>% filter(!is.na(Religion))
 
 # make sure variables are in as factors
 projectdata[c('MY','CoD','Religion', 'District', 'Region')] <-
-  list(as.factor(projectdata$MY),as.factor(projectdata$CoD),as.factor(projectdata$Religion), 
+  list(as.factor(projectdata$MY),as.numeric(projectdata$CoD),as.factor(projectdata$Religion), 
        as.factor(projectdata$District),as.factor(projectdata$Region))
 
 # separate train and test sets
@@ -38,10 +38,12 @@ set.seed(1)
 train.set <- sample(1:nrow(projectdata), 0.9*nrow(projectdata), replace = FALSE)
 train <- projectdata[train.set,]
 test <- projectdata[-train.set,]
+death.test <- test$CoD
 
 
 # run first model to see significant variables
 gam1 <- gam(CoD ~ ., family = binomial, data = train)
+pred1 <- predict(gam1, newdata = test, type = "response")
 summary(gam1)
 
 
