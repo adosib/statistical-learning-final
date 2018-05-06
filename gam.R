@@ -47,11 +47,12 @@ death.test <- test$CoD
 
 
 # run first model to see significant variables
+# "cr" = classification rate
 gam1 <- gam(CoD ~ ., data = train)
 summary(gam1)
 pred1 <- predict(gam1, newdata = test, type = "link")
 pred1 <- round(pred1)
-sum(pred1 == death.test) / length(pred1)
+cr1 <- sum(pred1 == death.test) / length(pred1)
 
 
 # second model using those significant variables
@@ -59,21 +60,23 @@ gam2 <- gam(CoD ~ MY + SexRatio + District + Age, data = train)
 summary(gam2)
 pred2 <- predict(gam2, newdata = test, type = "link")
 pred2 <- round(pred2)
-sum(pred2 == death.test) / length(pred2)
+cr2 <- sum(pred2 == death.test) / length(pred2)
 
 # MY/district/religion/age
 gam3 <- gam(CoD ~ MY + District + Religion + Age, data = train)
 summary(gam3)
 pred3 <- predict(gam3, newdata = test, type = "link")
 pred3 <- round(pred3)
-sum(pred3 == death.test) / length(pred3)
+cr3 <- sum(pred3 == death.test) / length(pred3)
 
 # getting rid of age
 gam4 <- gam(CoD ~ MY + District + Religion, data = train)
 summary(gam4)
 pred4 <- predict(gam4, newdata = test, type = "link")
 pred4 <- round(pred4)
-sum(pred4 == death.test) / length(pred4)
+cr4 <- sum(pred4 == death.test) / length(pred4)
 
-test.rates <- data.frame(death.test, pred1, pred2, pred3, pred4)
+classifications <- data.frame(death.test, pred1, pred2, pred3, pred4)
+testrates <- c(cr1, cr2, cr3, cr4)
 
+# so far these are all pretty bad but model 4 without the age variable is performing the best.... 
