@@ -1,22 +1,34 @@
-data = read_xlsx("~/Desktop/data.xlsx")
+library(openxlsx)
+data = read.xlsx("~/Desktop/data.xlsx")
 summary(data)
-names(data)
 
-pairs(data)
-cor(data[, -9])
+#drop variables that cannot be used in the model or are not useful
+drops <- c("Cause.of.Death","Date.of.Death","Year","Surname",
+           "Given.Names","Notes","Place.of.Birth","Place.of.Death","Place.of.Internment")
+data = data[ , !(names(data) %in% drops)]
 
-#set training and test
+#convert to categorical
+data[c('Sex','monthYear','Abbrev..Cause.of.Death','Religion','District','Region')] <-
+  list(as.factor(data$Sex),as.factor(data$monthYear),as.factor(data$Abbrev..Cause.of.Death),
+       as.factor(data$Religion),as.factor(data$District),as.factor(data$Region))
+
+
+#set training and test sets
 set.seed(1)
-train = sample(1:nrow(data),size = .9*nrow(data),replace=FALSE)
-test = (1:nrow(data))[-train]
-data.train = data[train, ]
-data.test = data[test, ]
+train.set = sample(1:nrow(data), size = .9*nrow(data), replace=FALSE)
+train = data[train.set,]
+test = data[-train.set,]
 
-#logistic regression
-glm.fit=glm(Sex ~ Year + `Month & Year` + 
-              `Date of Death` +
-              `Cause of Death` + `Abbrev. Cause of Death` + Surname
-            + `Given Names` + `Age (Years)` + `Sex` + `SexRatio` + `Religion`
-            + `Place of Birth` + `Place of Death` + `Place of Internment`,
-            family=binomial ,data=data.train)
+
+#multinomial logistic regression
+library(nnet)
+glm.fit = multinom(Abbrev..Cause.of.Death~., data=train)
+yhat.glm=predict(glm.fit,newdata=test)
+table = table(observed = test$Abbrev..Cause.of.Death, predicted = yhat.glm)
+sprintf("Classification rate: %f", (table[1][1]+table[6][1]+table[11][1]+table[16][1])/(sum(table)))
 summary(glm.fit)
+
+
+
+
+
