@@ -42,13 +42,15 @@ death.test <- test$CoD
 
 
 # run first model to see significant variables
-gam1 <- gam(CoD ~ ., family = binomial, data = train)
-pred1 <- predict(gam1, newdata = test, type = "response")
+gam1 <- gam(CoD ~ ., data = train)
+pred1 <- predict(gam1, newdata = test, type = "link")
+pred1 <- round(pred1)
+table(pred1, death.test)
 summary(gam1)
 
 
 # second model using those significant variables
-gam2 <- gam(CoD ~ MY + SexRatio + District, family = binomial, data = train)
+gam2 <- gam(CoD ~ MY + SexRatio + District + Age, data = train)
 summary(gam2)
 plot.Gam(gam2, se = TRUE, col = "red")
 
