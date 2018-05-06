@@ -23,15 +23,20 @@ train_index=c(as.numeric(rownames(train)))
 #check frequencies of diseases
 as.data.frame(table(df$Abbrev..Cause.of.Death))
 
-
 library(tree)
 library(randomForest)
 
 deaths.rf = randomForest(Abbrev..Cause.of.Death~.,data=train,na.action='na.omit',importance=TRUE)
 yhat.rf=predict(deaths.rf,newdata=test)
-table(observed = test$Abbrev..Cause.of.Death, predicted = yhat.rf)
+table = table(observed = test$Abbrev..Cause.of.Death, predicted = yhat.rf)
+sprintf("Classification rate: %f", (table[1][1]+table[6][1]+table[11][1]+table[16][1])/(sum(table)))
 importance(deaths.rf)
 
-(43+267+87+725)/(43+267+87+725+20+26+17+14+61+62+28+36+43+40+112+137)
+#variable importance visuals
+library(caret)
+varImpPlot(deaths.rf)
+VI_F=importance(deaths.rf)
+barplot(t(VI_F/sum(VI_F)))
+
 
 
