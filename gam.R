@@ -76,7 +76,12 @@ pred4 <- predict(gam4, newdata = test, type = "link")
 pred4 <- round(pred4)
 cr4 <- sum(pred4 == death.test) / length(pred4)
 
+# an anova test to see if any of these are actually better than the first model that includes all of the predictors
+anova(gam1, gam2, gam3, gam4, test = "F")
+
 classifications <- data.frame(death.test, pred1, pred2, pred3, pred4)
+avgclass <- rowMeans(classifications)
+classifications <- data.frame(classifications, avgclass)
 testrates <- c(cr1, cr2, cr3, cr4)
 
 # so far these are all pretty bad but model 4 without the age variable is performing the best.... 
