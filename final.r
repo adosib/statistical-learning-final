@@ -20,14 +20,18 @@ train = df[train.set,]
 test = df[-train.set,]
 train_index=c(as.numeric(rownames(train)))
 
+#check frequencies of diseases
+as.data.frame(table(df$Abbrev..Cause.of.Death))
+
+
 library(tree)
 library(randomForest)
 
-deaths.rf = randomForest(Sex~.,data=train,na.action='na.omit',importance=TRUE)
+deaths.rf = randomForest(Abbrev..Cause.of.Death~.,data=train,na.action='na.omit',importance=TRUE)
 yhat.rf=predict(deaths.rf,newdata=test)
-table(observed = test$Sex, predicted = yhat.rf)
+table(observed = test$Abbrev..Cause.of.Death, predicted = yhat.rf)
 importance(deaths.rf)
 
-(388+536)/(388+536+319+475)
+(43+267+87+725)/(43+267+87+725+20+26+17+14+61+62+28+36+43+40+112+137)
 
 
