@@ -36,6 +36,7 @@ train.set <- sample(1:nrow(projectdata), 0.9*nrow(projectdata), replace = FALSE)
 train <- projectdata[train.set,]
 test <- projectdata[-train.set,]
 
-gam(Sex ~ Age + Region + SexRatio, family = binomial, data = train)
-
+gam1 <- gam(CoD ~ Sex + Age + Region, family = binomial, data = train)
+summary(gam1)
+plot.Gam(gam1, se = TRUE)
 
