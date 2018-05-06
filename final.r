@@ -32,6 +32,9 @@ table = table(observed = test$Abbrev..Cause.of.Death, predicted = yhat.rf)
 sprintf("Classification rate: %f", (table[1][1]+table[6][1]+table[11][1]+table[16][1])/(sum(table)))
 importance(deaths.rf)
 
+#train = na.omit(train)
+#X = train[,-which(names(train)=="Abbrev..Cause.of.Death")]
+
 #variable importance visuals
 library(caret)
 varImpPlot(deaths.rf)
