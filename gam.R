@@ -27,16 +27,27 @@ projectdata <- projectdata %>% filter(!is.na(Sex))
 projectdata <- projectdata %>% filter(!is.na('Death date'))
 projectdata <- projectdata %>% filter(!is.na(Religion))
 
+
+# make sure variables are in as factors
 projectdata[c('MY','CoD','Religion', 'District', 'Region')] <-
   list(as.factor(projectdata$MY),as.factor(projectdata$CoD),as.factor(projectdata$Religion), 
        as.factor(projectdata$District),as.factor(projectdata$Region))
 
+# separate train and test sets
 set.seed(1)
 train.set <- sample(1:nrow(projectdata), 0.9*nrow(projectdata), replace = FALSE)
 train <- projectdata[train.set,]
 test <- projectdata[-train.set,]
 
-gam1 <- gam(CoD ~ Sex + Age + Region, family = binomial, data = train)
+
+# run first model to see significant variables
+gam1 <- gam(CoD ~ ., family = binomial, data = train)
 summary(gam1)
-plot.Gam(gam1, se = TRUE)
+
+
+# second model using those significant variables
+gam2 <- gam(CoD ~ MY + SexRatio + District, family = binomial, data = train)
+summary(gam2)
+plot.Gam(gam2, se = TRUE, col = "red")
+
 
