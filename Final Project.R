@@ -1,6 +1,6 @@
 #Open and format data
 library(readxl)
-my.data <- read_excel("Documents/2018 - Spring Semester/Stat 4510/Project Data.xlsx")
+my.data <- read_excel("Project Data.xlsx")
 my.data <- my.data[c(2,5,8,9,10,11,15,16)]
 colnames(my.data) <- c("MonthYear", "COD", "Age", "Sex", "SexRatio", "Religion", "District", "Region")
 
@@ -37,4 +37,5 @@ library(gbm)
 model.gbm <- gbm(COD ~ MonthYear+Age+Sex+SexRatio+Religion+District+Region, data = train, 
                  distribution = "gaussian", n.trees = 100)
 model.gbm
-summary(model.gbm)
+summary.gbm(model.gbm)
+predict.gbm(model.gbm, test, n.trees = 100)
