@@ -42,16 +42,17 @@ barplot(t(VI_F/sum(VI_F)))
 count(is.na(df))
 #assign continuous variables to new dataframe
 df_cont = df[,c('Age','SexRatio')]
+#assign categorical variables to new dataframe
 df_factor = df[ , !(names(df) %in% names(df_cont))]
 library(mice)
 #imputing continuous data
 imputed_df_cont <- mice(df_cont, m=5, maxit = 50, method = 'pmm', seed = 500)
-#combine the 5 models by averaging
+#combine the 5 imputed models by averaging
 combined_age <- rowMeans(imputed_df_cont$imp$Age)
 combined_sexRatio <- rowMeans(imputed_df_cont$imp$SexRatio)
 which(is.na(df$Age))
 which(is.na(df$SexRatio))
-#for loops to replace na values in original dataframe with impute values
+#for loops to replace na values in original dataframe with impute values for Age and SexRatio
 for(value in which(is.na(df$Age))){
   for(i in 1:28){ #there were 28 NA values for Age
     df$Age[value]=combined_age[i]
@@ -69,7 +70,7 @@ count(is.na(df$SexRatio))
 imputed_df_factor <- mice(df_factor, m=1, maxit = 50, method = 'polyreg', seed = 500)
 imputed_sex = t(imputed_df_factor$imp$Sex)
 imputed_religion = t(imputed_df_factor$imp$Religion)
-#replace NA values in df with imputed values
+#replace NA values in df with imputed values for Sex and Religion
 for(value in which(is.na(df$Sex))){
   for(i in 1:11){ #there were 11 NA values for Sex
     df$Sex[value]=imputed_sex[i]
@@ -86,7 +87,7 @@ plot(deaths.rf)
 t <- tuneRF(train[,-2],train[,2],stepFactor=.5,
             plot=TRUE,ntreeTry = 300,
             trace = TRUE, improve = 0.05)
-#tuned random forest with no na values in the dataframe
+#tuned random forest with no NA values in the dataframe
 set.seed(1)
 train.set <- sample(1:nrow(df),.60*nrow(df),
                     replace<-TRUE)
