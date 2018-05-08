@@ -83,11 +83,6 @@ cr4 <- sum(pred4 == death.test) / length(pred4)
 # an anova test to see if any of these are actually better than the first model that includes all of the predictors
 anova(gam1, gam2, gam3, gam4, test = "F")
 
-classifications <- data.frame(death.test, pred1, pred2, pred3, pred4)
-avgclass <- rowMeans(classifications)
-classifications <- data.frame(classifications, avgclass)
-testrates <- c(cr1, cr2, cr3, cr4)
-
 # so far these are all pretty bad but model 4 without the age variable is performing the best.... 
 
 # using gam2 to add a spline to continuous variables
@@ -104,14 +99,6 @@ pred6 <- predict(gam6, newdata = test, type = "link")
 pred6 <- round(pred6)
 cr6 <- sum(pred6 == death.test) / length(pred6)
 
-testrates <- c(testrates, cr5, cr6)
-plot(testrates, pch = 19, col = "red")
-
-# this anova shows that there really is no reason to have Age in there at all as a predictor, 
-# F is so high that even though this model has the highest prediction accuracy, its performace still technically
-# is not better than those that do not have Age in them at all?
-anova(gam1, gam5, gam6, test = "F")
-
 gam7 <- gam(CoD ~ MY + District + Religion + lo(Age) + lo(SexRatio), data = train)
 summary(gam7)
 pred7 <- predict(gam7, newdata = test, type = "link")
@@ -126,10 +113,40 @@ pred8 <- round(pred8)
 cr8 <- sum(pred8 == death.test) / length(pred8)
 plot.Gam(gam8, col = "red", se = TRUE)
 
-# add interaction term between Age and SexRatio 
-gam9 <- gam(CoD ~ MY + District + s(Age) + s(SexRatio) + s(wt), data = train)
+# add interaction term between Age and SexRatio, wt
+gam9 <- gam(CoD ~ MY + District + poly(Age, 2) + lo(SexRatio) + lo(wt), data = train)
 summary(gam9)
 pred9 <- predict(gam9, newdata = test, type = "link")
 pred9 <- round(pred9)
 cr9 <- sum(pred9 == death.test) / length(pred9)
 plot.Gam(gam9, col = "red", se = TRUE)
+
+# this anova test shows that although the test classification for gam9 is the same as gam8 with the addition
+# of the interaction term between "Age" and "SexRatio", "wt" doesn't actually add anything and has no real reason
+# for being in the model at all
+anova(gam1, gam2, gam3, gam4, gam5, gam6, gam7, gam8, gam9, test = "F")
+
+# taking out Age and SexRatio, allowing to rely on wt
+gam10 <- gam(CoD ~ MY + District + lo(wt), data = train)
+summary(gam10)
+pred10 <- predict(gam10, newdata = test, type = "link")
+pred10 <- round(pred10)
+cr10 <- sum(pred10 == death.test) / length(pred10)
+plot.Gam(gam10, col = "red", se = TRUE)
+
+testrates <- c(cr1, cr2, cr3, cr4, cr5, cr6, cr7, cr8, cr9, cr10)
+plot(testrates, pch = 19, col = "red", xlab = "GAM number", ylab = "classification rate")
+
+# anova with all 10 gams 
+# now, despite the fact that the classification rate is a little bit lower, the model actually performs
+# statistically/relatively better than the others now that the interaction term is added in. However, gam8
+# also performs at a comparably significant level, and its test classification rate is higher than that of gam10,
+# so one might choose to use gam8 over gam10. 
+anova(gam1, gam2, gam3, gam4, gam5, gam6, gam7, gam8, gam9, gam10)
+
+classifications <- data.frame(death.test, pred1, pred2, pred3, pred4, pred5, pred6, pred7, pred8, pred9, pred10)
+avgclass <- rowMeans(classifications)
+classifications <- data.frame(classifications, avgclass)
+error <- (classifications$death.test - classifications$avgclass)^2
+plot(1:length(death.test), error, xlab = "observation", ylab = "test error", col = classifications$death.test, pch = 19)
+
