@@ -35,8 +35,9 @@ projectdata <- projectdata %>% filter(!is.na(Religion))
   # 3 = pneumonia
   # 4 = tuberculosis
 projectdata[c('MY','CoD','Religion', 'District', 'Region')] <-
-  list(as.factor(projectdata$MY),as.numeric(projectdata$CoD),as.factor(projectdata$Religion), 
+  list(as.factor(projectdata$MY),as.factor(projectdata$CoD),as.factor(projectdata$Religion), 
        as.factor(projectdata$District),as.factor(projectdata$Region))
+projectdata$CoD <- as.numeric(projectdata$CoD)
 
 # separate train and test sets
 set.seed(1)
@@ -85,3 +86,21 @@ classifications <- data.frame(classifications, avgclass)
 testrates <- c(cr1, cr2, cr3, cr4)
 
 # so far these are all pretty bad but model 4 without the age variable is performing the best.... 
+
+# using gam2 to add a spline to continuous variables
+gam5 <- gam(CoD ~ MY + District + s(SexRatio) + s(Age), data = train)
+summary(gam5)
+pred5 <- predict(gam5, newdata = test, type = "link")
+pred5 <- round(pred5)
+cr5 <- sum(pred5 == death.test) / length(pred5)
+
+# using gam3 to add a spline to continuous variables
+gam6 <- gam(CoD ~ MY + District + Religion + s(Age), data = train)
+summary(gam6)
+pred6 <- predict(gam6, newdata = test, type = "link")
+pred6 <- round(pred6)
+cr6 <- sum(pred6 == death.test) / length(pred6)
+
+testrates <- c(testrates, cr5, cr6)
+plot(testrates, pch = 19, col = "red")
+
