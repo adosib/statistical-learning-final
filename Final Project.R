@@ -1,6 +1,6 @@
 #Open and format data
 library(readxl)
-my.data <- read_excel("Project Data.xlsx")
+my.data <- read_excel("Documents/2018 - Spring Semester/Stat 4510/Project Data.xlsx")
 my.data <- my.data[c(2,5,8,9,10,11,15,16)]
 colnames(my.data) <- c("MonthYear", "COD", "Age", "Sex", "SexRatio", "Religion", "District", "Region")
 
@@ -20,7 +20,6 @@ my.data$MonthYear <- as.factor(my.data$MonthYear)
 my.data$COD <- as.factor(my.data$COD)
 my.data$Age <- as.factor(my.data$Age)
 my.data$Sex <- as.factor(my.data$Sex)
-my.data$SexRatio <- as.factor(my.data$SexRatio)
 my.data$Religion <- as.factor(my.data$Religion)
 my.data$District <- as.factor(my.data$District)
 my.data$Region <- as.factor(my.data$Region)
@@ -34,9 +33,10 @@ test  <- my.data[-sample, ]
 #Fit Initial Boosting Model
 set.seed(1)
 library(gbm)
-model.gbm <- gbm(COD ~ MonthYear+Age+Sex+SexRatio+Religion+District+Region, data = train, 
-                 distribution = "gaussian", n.trees = 100)
+library(caret)
+model.gbm <- gbm(COD ~ ., data = train, distribution = "multinomial", n.trees = 100)
 model.gbm
-summary.gbm(model.gbm)
-predict.gbm(model.gbm, test, n.trees = 100)
-#hi
+summary(model.gbm)
+pred <- predict.gbm(model.gbm, train, n.trees = 100, type = "response")
+pred
+summary(pred)
