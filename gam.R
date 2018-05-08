@@ -27,6 +27,9 @@ projectdata <- projectdata %>% filter(!is.na(Sex))
 projectdata <- projectdata %>% filter(!is.na('Death date'))
 projectdata <- projectdata %>% filter(!is.na(Religion))
 
+# add interaction term between Age and SexRatio
+wt <- projectdata$Age * projectdata$SexRatio
+projectdata <- data.frame(projectdata, wt)
 
 # make sure variables are in as factors
 # changed cause of death to numeric for classification purposes (numbered in alphabetical order):
@@ -34,8 +37,8 @@ projectdata <- projectdata %>% filter(!is.na(Religion))
   # 2 = influenza
   # 3 = pneumonia
   # 4 = tuberculosis
-projectdata[c('MY','CoD','Religion', 'District', 'Region')] <-
-  list(as.factor(projectdata$MY),as.factor(projectdata$CoD),as.factor(projectdata$Religion), 
+projectdata[c('MY', 'CoD','Religion', 'District', 'Region')] <-
+  list(as.factor(projectdata$MY), as.factor(projectdata$CoD),as.factor(projectdata$Religion), 
        as.factor(projectdata$District),as.factor(projectdata$Region))
 projectdata$CoD <- as.numeric(projectdata$CoD)
 
@@ -104,3 +107,29 @@ cr6 <- sum(pred6 == death.test) / length(pred6)
 testrates <- c(testrates, cr5, cr6)
 plot(testrates, pch = 19, col = "red")
 
+# this anova shows that there really is no reason to have Age in there at all as a predictor, 
+# F is so high that even though this model has the highest prediction accuracy, its performace still technically
+# is not better than those that do not have Age in them at all?
+anova(gam1, gam5, gam6, test = "F")
+
+gam7 <- gam(CoD ~ MY + District + Religion + lo(Age) + lo(SexRatio), data = train)
+summary(gam7)
+pred7 <- predict(gam7, newdata = test, type = "link")
+pred7 <- round(pred7)
+cr7 <- sum(pred7 == death.test) / length(pred7)
+plot.Gam(gam7, col = "red", se = TRUE)
+
+gam8 <- gam(CoD ~ MY + District + Religion + poly(Age, 2) + lo(SexRatio), data = train)
+summary(gam8)
+pred8 <- predict(gam8, newdata = test, type = "link")
+pred8 <- round(pred8)
+cr8 <- sum(pred8 == death.test) / length(pred8)
+plot.Gam(gam8, col = "red", se = TRUE)
+
+# add interaction term between Age and SexRatio 
+gam9 <- gam(CoD ~ MY + District + s(Age) + s(SexRatio) + s(wt), data = train)
+summary(gam9)
+pred9 <- predict(gam9, newdata = test, type = "link")
+pred9 <- round(pred9)
+cr9 <- sum(pred9 == death.test) / length(pred9)
+plot.Gam(gam9, col = "red", se = TRUE)
