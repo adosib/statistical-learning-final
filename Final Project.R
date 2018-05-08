@@ -1,6 +1,6 @@
 #Open and format data
 library(readxl)
-my.data <- read_excel("Documents/2018 - Spring Semester/Stat 4510/statistical-learning-final/Project Data.xlsx")
+my.data <- read_excel("Documents/2018 - Spring Semester/Stat 4510/Project Data.xlsx")
 my.data <- my.data[c(2,5,8,9,10,11,15,16)]
 colnames(my.data) <- c("MonthYear", "COD", "Age", "Sex", "SexRatio", "Religion", "District", "Region")
 
@@ -17,6 +17,7 @@ my.data <- my.data %>% filter(!is.na(Region))
 
 #Convert to Factors
 my.data$MonthYear <- as.factor(my.data$MonthYear)
+my.data$COD <- as.factor(my.data$COD)
 my.data$Age <- as.factor(my.data$Age)
 my.data$Sex <- as.factor(my.data$Sex)
 my.data$Religion <- as.factor(my.data$Religion)
@@ -35,5 +36,7 @@ library(gbm)
 library(caret)
 model.gbm <- gbm(COD ~ ., data = train, distribution = "multinomial", n.trees = 100)
 model.gbm
-predict.gbm(model.gbm, train, n.trees = 100, type = "response")
-confusionMatrix(train.pred, train$COD)
+summary(model.gbm)
+pred <- predict.gbm(model.gbm, train, n.trees = 100, type = "response")
+pred
+summary(pred)
