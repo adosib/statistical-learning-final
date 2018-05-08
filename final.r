@@ -14,6 +14,8 @@ df[c('Sex','monthYear','Abbrev..Cause.of.Death','Religion','District','Region')]
   list(as.factor(df$Sex),as.factor(df$monthYear),as.factor(df$Abbrev..Cause.of.Death),
        as.factor(df$Religion),as.factor(df$District),as.factor(df$Region))
 
+library(plyr)
+count(is.na(df$Age))
 df = na.omit(df) #omit records with NA values
 
 #train-test split of data
