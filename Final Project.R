@@ -47,9 +47,88 @@ set.seed(1)
 sample <- sample.int(n = nrow(my.data), size = floor(.90*nrow(my.data)), replace = F)
 data.train <- my.data[sample,]
 data.test  <- my.data[-sample,]
-data.train.target <- data.train[,2]
 
-#Fit Initial KNN Model
+#Fit Initial KNN Model (K=10)
 set.seed(1)
 library(class)
-knn.model <- knn(train = data.train[,1,3:8], test = data.test[,1,3:8], data.train[,2], k = 10)
+knn.10 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 10)
+table(data.test$COD, knn.10)
+(175+8+22+89)/(429)
+
+#Variable Importance
+library(caret)
+model.tree  <- train(COD ~ .,
+                     data = data.train,
+                     method = "rpart")
+plot(varImp(model.tree), top = 7)
+
+#Subset the data with the variables with the most VI
+new.train.1 <- my.data[sample, -4]
+new.test.1 <- my.data[-sample, -4]
+new.train <- new.train.1[,-5]
+new.test <- new.test.1[,-5]
+
+#Fit new KNN with K = 10
+set.seed(1)
+library(class)
+newknn.10 <- knn(train = new.train, test = new.test, cl = new.train$COD, k = 10)
+table(new.test$COD, newknn.10)
+(177+13+21+94)/(429)
+
+#Subset the data, removing District since this is captured by Region and has 
+#less importance than Region and fit a new KNN with K=10
+final.train <- new.train[,-5]
+final.test <- new.test[,-5]
+set.seed(1)
+library(class)
+finalknn.10 <- knn(train = final.train, test = final.test, cl = final.train$COD, k = 10)
+table(final.test$COD, finalknn.10)
+(184+17+38+97)/(429)
+
+#Does this work
+#DONT LOOK AT THIS YET!! NOT DONE
+set.seed(1)
+knn.1 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 1)
+table(data.test$COD, knn.1)
+(172+17+34+90)/(429)
+
+set.seed(1)
+knn.2 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 2)
+table(data.test$COD, knn.2)
+(169+12+28+90)/(429)
+
+set.seed(1)
+knn.3 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 3)
+table(data.test$COD, knn.3)
+(174+15+19+87)/(429)
+
+set.seed(1)
+knn.5 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 5)
+table(data.test$COD, knn.5)
+(170+11+24+89)/(429)
+
+set.seed(1)
+knn.7 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 7)
+table(data.test$COD, knn.7)
+(171+9+26+90)/(429)
+
+set.seed(1)
+knn.8 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 8)
+table(data.test$COD, knn.8)
+(168+7+26+91)/(429)
+
+set.seed(1)
+knn.15 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 15)
+table(data.test$COD, knn.15)
+(168+9+17+88)/(429)
+
+set.seed(1)
+knn.20 <- knn(train = data.train, test = data.test, cl = data.train$COD, k = 20)
+table(data.test$COD, knn.20)
+(169+7+17+90)/(429)
+
+#Table of K values and misclassification rates
+K = c()
+Rate = c()
+plot(K,Rate,ylab="Classification Rate")
+lines(K,Rate)
