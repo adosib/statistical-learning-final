@@ -39,3 +39,4 @@ model.gbm <- gbm(COD ~ MonthYear+Age+Sex+SexRatio+Religion+District+Region, data
 model.gbm
 summary.gbm(model.gbm)
 predict.gbm(model.gbm, test, n.trees = 100)
+#hi
