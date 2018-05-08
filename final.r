@@ -14,6 +14,9 @@ df[c('Sex','monthYear','Abbrev..Cause.of.Death','Religion','District','Region')]
   list(as.factor(df$Sex),as.factor(df$monthYear),as.factor(df$Abbrev..Cause.of.Death),
        as.factor(df$Religion),as.factor(df$District),as.factor(df$Region))
 
+df = na.omit(df) #omit records with NA values
+
+#train-test split of data
 set.seed(1)
 train.set = sample(1:nrow(df),.60*nrow(df),
                    replace=TRUE)
@@ -25,16 +28,34 @@ as.data.frame(table(df$Abbrev..Cause.of.Death))
 
 ####build initial random forest
 library(randomForest)
-deaths.rf = randomForest(Abbrev..Cause.of.Death~.,data=train,na.action='na.omit',importance=TRUE)
+set.seed(1)
+deaths.rf = randomForest(Abbrev..Cause.of.Death~.,data=train,importance=TRUE)
 yhat.rf = predict(deaths.rf,newdata = test)
 table = table(observed=test$Abbrev..Cause.of.Death, predicted = yhat.rf)
 sprintf("Classification rate: %f", (table[1][1]+table[6][1]+table[11][1]+table[16][1])/(sum(table)))
 importance(deaths.rf)
+print(deaths.rf)
+
+#tuning the forest
+set.seed(1)
+t = tuneRF(train[,-2],train[,2],stepFactor=.5,
+           plot=TRUE,ntreeTry = 300,
+           trace = TRUE, improve = 0.05) #plot OOB error as a function of mtry
+plot(deaths.rf,main="Random Forest: OOB Error vs. Ntrees") #plot OOB error as a function of ntree
+rf_tuned = randomForest(Abbrev..Cause.of.Death~.,data=train, na.action='na.omit',
+                        ntree=300, mtry=4, importance=TRUE)
+yhat.rf = predict(rf_tuned,newdata=test)
+table = table(observed = test$Abbrev..Cause.of.Death, predicted = yhat.rf)
+sprintf("Classification rate: %f", (table[1][1]+table[6][1]+table[11][1]+table[16][1])/(sum(table)))
+print(rf_tuned)
 
 #variable importance visuals
-varImpPlot(deaths.rf)
+varImpPlot(deaths.rf, main="Variable Importances for Random Forest")
 VI_F = importance(deaths.rf)
-barplot(t(VI_F/sum(VI_F)))
+barplot(t(VI_F/sum(VI_F)),col = c("darkblue","red","aquamarine4","cadetblue4",
+                                  "darkorchid4","coral3"))
+legend("topright", legend = colnames(VI_F), fill=c("darkblue","red","aquamarine4","cadetblue4",
+                                        "darkorchid4","coral3"),cex = 0.75)
 
 ####attempting to impute missing data
 #check which data is missing
@@ -81,11 +102,6 @@ for(value in which(is.na(df$Religion))){
   }
 }
 
-#tuning
-plot(deaths.rf)
-t = tuneRF(train[,-2],train[,2],stepFactor=.5,
-            plot=TRUE,ntreeTry = 300,
-            trace = TRUE, improve = 0.05)
 #tuned random forest with no NA values in the dataframe
 set.seed(1)
 train.set = sample(1:nrow(df),.60*nrow(df),
