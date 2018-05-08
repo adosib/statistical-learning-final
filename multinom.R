@@ -32,9 +32,10 @@ yhat.glm=predict(glm.fit, newdata=newdata.test)
 table = table(observed = newdata.test$`Abbrev. Cause of Death`, predicted = yhat.glm)
 table
 sprintf("Classification rate: %f", (table[1,1]+table[2,2]+table[3,3]+table[4,4])/(sum(table)))
-
-
-
 summary(glm.fit)
 
+#misclassification rate
+(1-.560185)*100
+
+table(newdata$`Abbrev. Cause of Death`)
 
