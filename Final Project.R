@@ -45,16 +45,13 @@ my.data$MonthYear <- as.numeric(my.data$MonthYear)
 #Split into Training and Test
 set.seed(1)
 sample <- sample.int(n = nrow(my.data), size = floor(.90*nrow(my.data)), replace = F)
-data.train <- my.data[sample,]
-data.test  <- my.data[-sample,]
-data.train.target <- my.data[sample, 2]
-data.test.target <- my.data[-sample, 2]
+data.train <- my.data[sample,c(1,3,4,5,6,7,8)]
+data.test  <- my.data[-sample,c(1,3,4,5,6,7,8)]
+data.train.target <- my.data[sample,2]
+data.test.target<- my.data[-sample,2]
 
 #Fit Initial KNN Model
 set.seed(1)
 library(class)
-knn.model <- kNN(train = data.train, test = data.test, data.train.target, k = 10)
-dim(data.train)
-dim(data.test)
-dim(data.train.target)
-dim(data.test.target)
+knn.model <- kNN(train = data.train[1:7], test = data.test[1:7], data.train[1], k = 10)
+#wtf
